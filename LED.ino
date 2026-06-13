@@ -1,9 +1,9 @@
 #include <FastLED.h>
 #include <SettingsGyver.h>
 #include <LittleFS.h>
-#include <GyverDBFile.h>
 #include <Arduino.h>
 #include "classLed.h"
+#include "classLEDEffects.h"
 
 //Wi-Fi
 #define WIFI_SSID "Ufanet-12"
@@ -15,7 +15,9 @@ SettingsGyver sett("Управление Лентой");
 //Переменные
 bool ChangeFlag = false;
 int brightnessLED = 50;
-int countLED = 10;
+int countLED = 20;
+int effectLED = 0;
+unsigned long speedEffectLED=7;
 
 //ESPLED
 ESPLED LEDStrip;
@@ -24,8 +26,16 @@ ESPLED LEDStrip;
 void build(sets::Builder& b) {
   if(b.Slider("bright"_h, "Яркость", 0, 50, 1, "", &brightnessLED))
     {LEDStrip.ChangeBrightnessLED(brightnessLED);}
+  if(b.Slider("speed"_h, "Скорость", 0, 20, 1, "", &speedEffectLED))
+    {LEDStrip.ChangeSpeedEffect(speedEffectLED);}
   if(b.Number("count"_h, "LED Count", &countLED))
     {LEDStrip.ChangeCountLED(countLED);}
+
+  if(b.Select("effect"_h, "Эффект",
+             "Rainbow;Confetti;Fire;Blue",
+             &effectLED)){
+             
+             }
 }
 
 void setup() {
@@ -45,11 +55,12 @@ void setup() {
   sett.begin();
   sett.onBuild(build);
 
-  LEDStrip.buld(brightnessLED, countLED);
+  if(LEDStrip.buld(brightnessLED, countLED))
+    Serial.println("Start");
 }
 
 void loop() {
   sett.tick();
 
-  LEDStrip.drawOnLED();
+  LEDStrip.displayEffect();
 }
