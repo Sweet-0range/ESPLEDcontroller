@@ -1,11 +1,10 @@
 #pragma once
 
 #include <FastLED.h>
+#include "classLEDEffects.h"
 
 #define LED_PIN 2
 #define MAX_LEDS 100
-
-unsigned long GlobalTimer = 0;
 
 class ESPLED
 {
@@ -15,14 +14,16 @@ private:
     int countLED;
     unsigned long speedEffect = 7;
 
-public:
+    bool isUpdating = false;
 
+    LEDEffect* Effect= new RainbowEffect;
+
+public:
 
     bool buld(int brightness, int count)
     {
         countLED = constrain(count, 1, MAX_LEDS);
         brightnessLED = constrain(brightness, 0, 50);
-        FastLED.clear(true);
         if(LEDS!=nullptr)
             delete[] LEDS;
 
@@ -30,26 +31,31 @@ public:
         this->brightnessLED = brightness;
         this->countLED = countLED;
 
-        FastLED.clear(true);
         FastLED.addLeds<WS2812B, LED_PIN, GRB>(LEDS, countLED);
         FastLED.setBrightness(brightness);
-        FastLED.clear(true);
+        FastLED.clear();
+        FastLED.show();
         return true;
     }
 
     bool ChangeCountLED(int count)
     {
+        isUpdating = true;
         FastLED.clear(true);
         countLED = constrain(count, 1, MAX_LEDS);
         if(LEDS!=nullptr)
             delete[] LEDS;
 
-        //FastLED.clear(true);
         LEDS = new CRGB[countLED];
-        this->countLED = count;
+        if (!LEDS) {
+            isUpdating = false;
+            return false;
+        }
 
         FastLED.addLeds<WS2812B, LED_PIN, GRB>(LEDS, countLED);
-        FastLED.clear(true);
+        FastLED.clear();
+        FastLED.show();
+        isUpdating = false;
         return true;
     }
 
@@ -69,18 +75,21 @@ public:
         return true;
     }
 
-    bool displayEffect()
-    {
-      static uint8_t hue = 0;
-      if (millis() - GlobalTimer >= speedEffect)
-      {
-        GlobalTimer = millis();
-        fill_rainbow(LEDS,countLED,hue,7);
+    bool ChangeEffect(int Index) {
 
+        if(Effect != nullptr) delete Effect;
+        
+        Effect = StartChangeEffect(Index);
+        FastLED.clear();
         FastLED.show();
-        hue++;
-      }
+        return true;
+    }
 
-      return true;
+    bool displayEffect() {
+    if (!isUpdating && Effect != nullptr && LEDS != nullptr) {
+        Effect->run(LEDS, countLED, speedEffect);
+        FastLED.show();
+    }
+    return true;
     }
 };

@@ -15,7 +15,7 @@ SettingsGyver sett("Управление Лентой");
 //Переменные
 bool ChangeFlag = false;
 int brightnessLED = 50;
-int countLED = 20;
+int countLED = 10;
 int effectLED = 0;
 unsigned long speedEffectLED=7;
 
@@ -32,9 +32,9 @@ void build(sets::Builder& b) {
     {LEDStrip.ChangeCountLED(countLED);}
 
   if(b.Select("effect"_h, "Эффект",
-             "Rainbow;Confetti;Fire;Blue",
+             "Радуга;Конфети;Огонь;Синий",
              &effectLED)){
-             
+             LEDStrip.ChangeEffect(effectLED);
              }
 }
 
