@@ -13,6 +13,10 @@ private:
     int brightnessLED;
     int countLED;
     unsigned long speedEffect = 7;
+    
+    bool breathEffect = false;
+    uint8_t BPM = 0;
+    int currentBrightness;
 
     bool isUpdating = false;
 
@@ -62,9 +66,10 @@ public:
     bool ChangeBrightnessLED(int brightness)
     {
         brightnessLED = constrain(brightness, 0, 50);
-
-        FastLED.setBrightness(brightnessLED);
-
+        if (!breathEffect) {
+            currentBrightness = brightnessLED;
+            FastLED.setBrightness(currentBrightness);
+        }
         return true;
     }
 
@@ -72,6 +77,19 @@ public:
     {
         speedEffect = time;
 
+        return true;
+    }
+
+    bool ChangeBreathEffect(bool breath, uint8_t _BPM)
+    {
+        breathEffect = breath;
+        BPM = _BPM;
+
+        if (!breathEffect) {
+            currentBrightness = brightnessLED;
+            FastLED.setBrightness(currentBrightness);
+        }
+        return true;
         return true;
     }
 
@@ -86,10 +104,18 @@ public:
     }
 
     bool displayEffect() {
-    if (!isUpdating && Effect != nullptr && LEDS != nullptr) {
-        Effect->run(LEDS, countLED, speedEffect);
-        FastLED.show();
-    }
-    return true;
+
+        if (breathEffect) {
+            currentBrightness = beatsin8(BPM, 0, brightnessLED);
+            FastLED.setBrightness(currentBrightness);
+        }
+        if (!isUpdating && Effect != nullptr && LEDS != nullptr) {
+            Effect->run(LEDS, countLED, speedEffect);
+            FastLED.show();
+        }
+
+        return true;
     }
 };
+
+

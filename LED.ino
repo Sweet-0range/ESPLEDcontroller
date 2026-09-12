@@ -18,6 +18,8 @@ int brightnessLED = 50;
 int countLED = 10;
 int effectLED = 0;
 unsigned long speedEffectLED=7;
+bool BreathEffectLED=false;
+uint8_t BPM = 10;
 
 //ESPLED
 ESPLED LEDStrip;
@@ -26,16 +28,53 @@ ESPLED LEDStrip;
 void build(sets::Builder& b) {
   if(b.Slider("bright"_h, "Яркость", 0, 50, 1, "", &brightnessLED))
     {LEDStrip.ChangeBrightnessLED(brightnessLED);}
-  if(b.Slider("speed"_h, "Скорость", 0, 20, 1, "", &speedEffectLED))
-    {LEDStrip.ChangeSpeedEffect(speedEffectLED);}
-  if(b.Number("count"_h, "LED Count", &countLED))
+  
+  if(b.Number("count"_h, "Количество LED", &countLED))
     {LEDStrip.ChangeCountLED(countLED);}
 
   if(b.Select("effect"_h, "Эффект",
-             "Радуга;Конфети;Огонь;Синий",
+             "Радуга;Конфети;Огонь",
              &effectLED)){
              LEDStrip.ChangeEffect(effectLED);
+             b.reload();
              }
+  
+  //Постройка страницы в зависимости от эффекта
+  //Радуга
+  if(effectLED==0){
+    if(b.Slider("speed"_h, "Скорость", 0, 20, 1, "", &speedEffectLED))
+    {LEDStrip.ChangeSpeedEffect(speedEffectLED);}
+
+    if (b.Switch("eneblebreath"_h, "Эффект дыхания", &BreathEffectLED)) 
+    {
+      b.reload();
+    }
+  }
+  //Конфети
+  if(effectLED==1){
+    if(b.Slider("speed"_h, "Скорость", 0, 20, 1, "", &speedEffectLED))
+    {LEDStrip.ChangeSpeedEffect(speedEffectLED);}
+
+    if (b.Switch("eneblebreath"_h, "Эффект дыхания", &BreathEffectLED)) 
+    {
+      b.reload();
+    }
+  }
+  //Огонь
+  if(effectLED==2){
+    BreathEffectLED = false;
+    if(b.Slider("speed"_h, "Скорость", 0, 20, 1, "", &speedEffectLED))
+    {
+      LEDStrip.ChangeSpeedEffect(speedEffectLED);
+    }
+  }
+   if(BreathEffectLED){
+    b.Slider("breath"_h, "Ударов в минуту", 5, 25, 1, "", &BPM);
+    LEDStrip.ChangeBreathEffect(BreathEffectLED, BPM);
+   }
+   else{
+    LEDStrip.ChangeBreathEffect(false, 0);
+   }
 }
 
 void setup() {

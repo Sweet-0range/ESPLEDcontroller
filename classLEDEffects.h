@@ -65,27 +65,11 @@ public:
     }
 };
 
-class BlueEffect : public FireEffect {
-public:
-    LEDEffect* clone(int index) override {
-        if (index == 3) {
-            return new BlueEffect();
-        }
-        return FireEffect::clone(index);
-    }
-    void run(CRGB* leds, int count, unsigned long speed) override {
-        static unsigned long lastTime = 0;
-        if (millis() - lastTime >= speed) {
-            lastTime = millis();
-            fill_solid(leds, count, CRGB::Blue);
-        }
-    }
-};
 
 
 
 
-LEDEffect* StartEffect = new BlueEffect;
+LEDEffect* StartEffect = new FireEffect;
 
 LEDEffect* StartChangeEffect(int index)
 {
