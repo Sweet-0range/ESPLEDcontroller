@@ -20,7 +20,7 @@ int effectLED = 0;
 unsigned long speedEffectLED=7;
 bool BreathEffectLED=false;
 uint8_t BPM = 10;
-
+uint32_t solidColorLED = 0x0000FF;
 //ESPLED
 ESPLED LEDStrip;
 
@@ -33,7 +33,7 @@ void build(sets::Builder& b) {
     {LEDStrip.ChangeCountLED(countLED);}
 
   if(b.Select("effect"_h, "Эффект",
-             "Радуга;Конфети;Огонь",
+             "Радуга;Конфети;Огонь;Один цвет",
              &effectLED)){
              LEDStrip.ChangeEffect(effectLED);
              b.reload();
@@ -68,13 +68,32 @@ void build(sets::Builder& b) {
       LEDStrip.ChangeSpeedEffect(speedEffectLED);
     }
   }
-   if(BreathEffectLED){
-    b.Slider("breath"_h, "Ударов в минуту", 5, 25, 1, "", &BPM);
-    LEDStrip.ChangeBreathEffect(BreathEffectLED, BPM);
-   }
-   else{
-    LEDStrip.ChangeBreathEffect(false, 0);
-   }
+  //Один цвет
+  if(effectLED==3){
+
+    if (b.Color("color"_h, "Цвет", &solidColorLED)) 
+    {
+    LEDStrip.ChangeColor(solidColorLED);
+    }
+
+    if (b.Switch("eneblebreath"_h, "Эффект дыхания", &BreathEffectLED)) 
+    {
+      b.reload();
+    }
+  }
+
+  //Эффект дыхания
+  if(BreathEffectLED){
+  b.Slider("breath"_h, "Ударов в минуту", 5, 25, 1, "", &BPM);
+  LEDStrip.ChangeBreathEffect(BreathEffectLED, BPM);
+  }
+  else{
+  LEDStrip.ChangeBreathEffect(false, 0);
+  }
+
+
+  
+ 
 }
 
 void setup() {

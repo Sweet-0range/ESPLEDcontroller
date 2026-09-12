@@ -2,6 +2,7 @@
 
 #include <FastLED.h>
 #include "classLEDEffects.h"
+#include "parametersLED.h"
 
 #define LED_PIN 2
 #define MAX_LEDS 100
@@ -9,20 +10,25 @@
 class ESPLED
 {
 private:
+
+    
     CRGB* LEDS = nullptr;
     int brightnessLED;
     int countLED;
-    unsigned long speedEffect = 7;
     
     bool breathEffect = false;
     uint8_t BPM = 0;
     int currentBrightness;
+
+
 
     bool isUpdating = false;
 
     LEDEffect* Effect= new RainbowEffect;
 
 public:
+
+    ParamLED* param = new ParamLED();
 
     bool buld(int brightness, int count)
     {
@@ -75,7 +81,7 @@ public:
 
     bool ChangeSpeedEffect(unsigned long time = 50)
     {
-        speedEffect = time;
+        param->speedEffect = time;
 
         return true;
     }
@@ -91,6 +97,10 @@ public:
         }
         return true;
         return true;
+    }
+
+    bool ChangeColor(uint32_t Color){
+        param->solidColorLED = Color;
     }
 
     bool ChangeEffect(int Index) {
@@ -110,7 +120,7 @@ public:
             FastLED.setBrightness(currentBrightness);
         }
         if (!isUpdating && Effect != nullptr && LEDS != nullptr) {
-            Effect->run(LEDS, countLED, speedEffect);
+            Effect->run(LEDS, countLED, param);
             FastLED.show();
         }
 
